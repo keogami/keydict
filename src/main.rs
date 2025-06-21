@@ -1,3 +1,15 @@
-fn main() {
-    println!("Hello, world!");
+use clap::Parser;
+use commands::{Args, Commands, assimilate, search};
+
+pub mod tree;
+
+mod commands;
+
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    match args.command {
+        Commands::Assimilate { word_list } => assimilate(word_list),
+        Commands::Search { words, query } => search(&query, words),
+    }
 }
