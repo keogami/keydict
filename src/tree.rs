@@ -42,6 +42,12 @@ impl Node {
     }
 }
 
+impl Default for Node {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(Clone, Debug, serde::Deserialize, serde::Serialize)]
 pub struct Tree(BTreeMap<char, Node>);
 
@@ -134,5 +140,11 @@ impl Tree {
     #[allow(unused)]
     pub fn new_with_nodes(nodes: &[(char, Node)]) -> Self {
         Self(nodes.iter().map(|(c, n)| (*c, n.clone())).collect())
+    }
+}
+
+impl Default for Tree {
+    fn default() -> Self {
+        Self::new()
     }
 }
