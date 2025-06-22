@@ -1,6 +1,7 @@
 use std::{collections::BTreeMap, path::Path};
 
 use anyhow::Context;
+use fmmap::MmapFileExt;
 
 use crate::keys::Keys;
 
@@ -75,7 +76,10 @@ impl Tree {
     }
 
     pub fn from_path(path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let file = std::fs::File::open(path).context("Couldn't open file")?;
+        // let file = std::fs::File::open(path).context("Couldn't open file")?;
+
+        let file = fmmap::MmapFile::open(path).context("Couldn't open the file")?;
+        let file = file.reader(0).context("Couldn't create a reader for file")?;
         let tree: Self = serde_cbor::from_reader(file).context("Couldn't parse as cbor")?;
 
         Ok(tree)
