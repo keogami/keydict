@@ -8,7 +8,7 @@ use anyhow::Context;
 
 use crate::tree::Tree;
 
-pub fn assimilate(word_list: impl AsRef<Path>) -> anyhow::Result<()> {
+pub fn generate_tree(word_list: impl AsRef<Path>) -> anyhow::Result<()> {
     let measure = Instant::now();
     let save_path = word_list.as_ref().with_extension("kdtree");
     let file = std::fs::File::open(word_list).context("Couldn't open word list")?;

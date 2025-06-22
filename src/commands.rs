@@ -2,13 +2,13 @@ use std::path::PathBuf;
 
 use clap::{Subcommand, arg};
 
-mod assimilate;
+mod generate_tree;
 mod search_string;
 mod search;
 mod complete_string;
 mod complete;
 
-pub use assimilate::*;
+pub use generate_tree::*;
 pub use search_string::*;
 pub use search::*;
 pub use complete_string::*;
@@ -24,7 +24,7 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    Assimilate {
+    GenerateTree {
         word_list: PathBuf,
     },
     SearchString {
