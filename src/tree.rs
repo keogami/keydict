@@ -150,6 +150,58 @@ impl Tree {
         self.search_keys_inner(Default::default(), keys)
     }
 
+    fn search_prefixed_tree(&self, prefix: &str) -> Option<&Self> {
+        if self.is_empty() {
+            return None;
+        }
+
+        if prefix.is_empty() {
+            return None;
+        }
+
+        let head = prefix.chars().next().unwrap();
+        let sub_tree = self.choose(head)?;
+
+        if prefix.len() == 1 {
+            return Some(&sub_tree.children);
+        }
+
+        sub_tree.children.search_prefixed_tree(&prefix[1..])
+    }
+
+    fn reduce_to_list_inner(&self, acc: &str) -> Vec<String> {
+        self.0.iter().map(|(&c, sub_tree)| {
+            let mut acc = acc.to_string();
+            acc.push(c);
+
+            let sub_list = sub_tree.children.reduce_to_list_inner(&acc);
+
+            let mut res = if sub_tree.end {
+                vec![acc]
+            } else {
+                vec![]
+            };
+
+            res.extend(sub_list);
+
+            res
+        }).fold(Vec::new(), |mut a, b| {
+            a.extend(b);
+            a
+        })
+    }
+
+    pub fn reduce_to_list(&self, prefix: Option<&str>) -> Vec<String> {
+        self.reduce_to_list_inner(prefix.unwrap_or_default())
+    }
+
+    pub fn prefix_complete(&self, prefix: &str) -> Vec<String> {
+        let Some(prefix_tree) = self.search_prefixed_tree(prefix) else {
+            return Vec::new();
+        };
+
+        prefix_tree.reduce_to_list(Some(prefix))
+    }
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()

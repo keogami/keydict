@@ -3,6 +3,8 @@
 use clap::Parser;
 use commands::{Args, Commands, assimilate, search_string, search};
 
+use crate::commands::complete_string;
+
 pub mod keys;
 pub mod tree;
 
@@ -15,5 +17,6 @@ fn main() -> anyhow::Result<()> {
         Commands::Assimilate { word_list } => assimilate(word_list),
         Commands::SearchString { words, query } => search_string(&query, words),
         Commands::Search { words, query } => search(&query, words),
+        Commands::CompleteString { words, query } => complete_string(&query, words),
     }
 }
