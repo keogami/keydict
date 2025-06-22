@@ -126,7 +126,7 @@ impl Tree {
         // println!("acc = {acc} | head = {head:?}");
 
         let chars = head.chars();
-        let res: Vec<String> = chars.par_iter().filter_map(move |&c| {
+        let res: Vec<String> = chars.iter().filter_map(move |&c| {
                 let mut acc = acc.clone();
                 acc.push(c);
                 // println!("acc = {acc} && char = {c} && head = {head:?}");
@@ -138,7 +138,7 @@ impl Tree {
                 }
 
                 Some(sub_tree.children.search_keys_inner(acc, Keys(keys.0[1..].into())))
-            }).reduce(Vec::new, |mut a, b| {
+            }).fold(Vec::new(), |mut a, b| {
                 a.extend(b);
                 a
             });
