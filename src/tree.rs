@@ -126,28 +126,54 @@ impl Tree {
         // println!("acc = {acc} | head = {head:?}");
 
         let chars = head.chars();
-        let res: Vec<String> = chars.iter().filter_map(move |&c| {
-                let mut acc = acc.clone();
-                acc.push(c);
-                // println!("acc = {acc} && char = {c} && head = {head:?}");
-                let sub_tree =  self.choose(c)?;
-                // println!("acc = {acc} && char = {c} && head = {head:?} | found sub_tree");
+        chars.iter().filter_map(move |&c| {
+            let mut acc = acc.clone();
+            acc.push(c);
+            // println!("acc = {acc} && char = {c} && head = {head:?}");
+            let sub_tree =  self.choose(c)?;
+            // println!("acc = {acc} && char = {c} && head = {head:?} | found sub_tree");
 
-                if keys.0.len() == 1 && sub_tree.end {
-                    return Some(vec![acc]);
-                }
+            if keys.0.len() == 1 && sub_tree.end {
+                return Some(vec![acc]);
+            }
 
-                Some(sub_tree.children.search_keys_inner(acc, Keys(keys.0[1..].into())))
-            }).fold(Vec::new(), |mut a, b| {
-                a.extend(b);
-                a
-            });
-
-        res
+            Some(sub_tree.children.search_keys_inner(acc, Keys(keys.0[1..].into())))
+        }).flatten().collect()
     }
 
     pub fn search_keys(&self, keys: Keys) -> Vec<String> {
         self.search_keys_inner(Default::default(), keys)
+    }
+
+    fn search_key_prefixed_tree_inner(&self, acc: &str, prefix: Keys) -> Vec<(String, &Self)> {
+        if self.is_empty() {
+            return Vec::new();
+        }
+
+        if prefix.0.is_empty() {
+            return Vec::new();
+        }
+
+        let head = prefix.0.first().unwrap();
+        let sub_trees = head.chars().iter().filter_map(|&c| self.choose(c).map(|node| (c, node)));
+
+        if prefix.0.len() == 1 {
+            return sub_trees.map(|(c, n)| {
+                let mut acc = acc.to_string();
+                acc.push(c);
+                (acc, &n.children)
+            }).collect();
+        }
+
+        sub_trees.flat_map(|(c, tree)| {
+            let mut acc = acc.to_string();
+            acc.push(c);
+            tree.children.search_key_prefixed_tree_inner(&acc, Keys(prefix.0[1..].into()))
+        }).collect()
+    }
+
+    fn search_key_prefixed_tree(&self, prefix: Keys) -> Vec<(String, &Self)> {
+        self.search_key_prefixed_tree_inner("", prefix)
     }
 
     fn search_prefixed_tree(&self, prefix: &str) -> Option<&Self> {
@@ -170,7 +196,7 @@ impl Tree {
     }
 
     fn reduce_to_list_inner(&self, acc: &str) -> Vec<String> {
-        self.0.iter().map(|(&c, sub_tree)| {
+        self.0.iter().flat_map(|(&c, sub_tree)| {
             let mut acc = acc.to_string();
             acc.push(c);
 
@@ -185,10 +211,7 @@ impl Tree {
             res.extend(sub_list);
 
             res
-        }).fold(Vec::new(), |mut a, b| {
-            a.extend(b);
-            a
-        })
+        }).collect()
     }
 
     pub fn reduce_to_list(&self, prefix: Option<&str>) -> Vec<String> {
@@ -201,6 +224,12 @@ impl Tree {
         };
 
         prefix_tree.reduce_to_list(Some(prefix))
+    }
+
+    pub fn prefix_key_complete(&self, prefix: Keys) -> Vec<String> {
+        self.search_key_prefixed_tree(prefix).iter().flat_map(|(prefix, tree)| {
+            tree.reduce_to_list(Some(prefix))
+        }).collect()
     }
 
     pub fn is_empty(&self) -> bool {

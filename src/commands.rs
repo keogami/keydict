@@ -6,11 +6,15 @@ mod assimilate;
 mod search_string;
 mod search;
 mod complete_string;
+mod complete;
 
 pub use assimilate::*;
 pub use search_string::*;
 pub use search::*;
 pub use complete_string::*;
+pub use complete::*;
+
+use crate::keys::Keys;
 
 #[derive(clap::Parser, Debug)]
 pub struct Args {
@@ -43,5 +47,12 @@ pub enum Commands {
         words: PathBuf,
         /// word to complete
         query: String,
+    },
+    Complete {
+        #[arg(short, long)]
+        /// path to the file with the dictionary
+        words: PathBuf,
+        /// word to complete
+        query: Keys,
     },
 }
