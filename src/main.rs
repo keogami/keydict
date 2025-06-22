@@ -1,6 +1,9 @@
+#![feature(iterator_try_collect)]
+
 use clap::Parser;
 use commands::{Args, Commands, assimilate, search};
 
+pub mod keys;
 pub mod tree;
 
 mod commands;
