@@ -1,6 +1,10 @@
 use std::{collections::BTreeMap, path::Path};
 
 use anyhow::Context;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
+
+use crate::keys::Keys;
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Node {
@@ -111,6 +115,41 @@ impl Tree {
     // pub fn choose_mut(&mut self, c: char) -> Option<&mut Node> {
     //     self.0.get_mut(&c)
     // }
+
+    fn search_keys_inner(&self, acc: String, keys: Keys) -> Vec<String> {
+        if keys.0.is_empty() {
+            // println!("acc = {acc} | stopping");
+            return Vec::new();
+        }
+
+        let head = *keys.0.first().unwrap();
+        // println!("acc = {acc} | head = {head:?}");
+
+        let chars = head.chars();
+        let res: Vec<String> = chars.par_iter().filter_map(move |&c| {
+                let mut acc = acc.clone();
+                acc.push(c);
+                // println!("acc = {acc} && char = {c} && head = {head:?}");
+                let sub_tree =  self.choose(c)?;
+                // println!("acc = {acc} && char = {c} && head = {head:?} | found sub_tree");
+
+                if keys.0.len() == 1 && sub_tree.end {
+                    return Some(vec![acc]);
+                }
+
+                Some(sub_tree.children.search_keys_inner(acc, Keys(keys.0[1..].into())))
+            }).reduce(Vec::new, |mut a, b| {
+                a.extend(b);
+                a
+            });
+
+        res
+    }
+
+    pub fn search_keys(&self, keys: Keys) -> Vec<String> {
+        self.search_keys_inner(Default::default(), keys)
+    }
+
 
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()

@@ -79,7 +79,7 @@ impl TryFrom<char> for Key {
 }
 
 #[derive(Debug, Clone)]
-pub struct Keys(Vec<Key>);
+pub struct Keys(pub Vec<Key>);
 
 impl Display for Keys {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
