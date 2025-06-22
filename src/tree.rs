@@ -1,8 +1,6 @@
 use std::{collections::BTreeMap, path::Path};
 
 use anyhow::Context;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::ParallelIterator;
 
 use crate::keys::Keys;
 
