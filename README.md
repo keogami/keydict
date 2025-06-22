@@ -34,7 +34,7 @@ keydict complete --words words.kdtree 768378
 ## Example
 
 With the wordlist from
-[https://github.com/dwyl/english-words](dwyl/english-words) I get the following
+[dwyl/english-words](https://github.com/dwyl/english-words) I get the following
 suggestion.
 
 ```bash
